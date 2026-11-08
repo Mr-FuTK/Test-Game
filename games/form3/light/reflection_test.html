@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optics & Reflection Challenge | FU Tsz Kit @STFACYTSS</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f0f9ff; color: #1e293b; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1); width: 100%; max-width: 550px; padding: 24px; border: 2px solid #e0f2fe; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .badge { display: inline-block; background-color: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    h1 { color: #0369a1; font-size: 1.5rem; margin-bottom: 4px; }
+    .author { font-size: 0.85rem; color: #64748b; font-weight: 600; }
+    
+    .interactive-box { background: #0f172a; border-radius: 12px; padding: 15px; margin: 15px 0; text-align: center; }
+    canvas { background: #0f172a; border-radius: 8px; max-width: 100%; height: auto; }
+    .slider-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; color: #f8fafc; font-size: 0.9rem; }
+
+    .question-box { background: #f8fafc; border-radius: 12px; padding: 16px; margin-top: 15px; border: 1px solid #e2e8f0; }
+    .q-text { font-weight: 600; color: #334155; margin-bottom: 12px; font-size: 1rem; }
+    .options { display: flex; flex-direction: column; gap: 8px; }
+    .opt-btn { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; text-align: left; cursor: pointer; transition: all 0.2s ease; font-weight: 500; color: #1e293b; }
+    .opt-btn:hover { border-color: #38bdf8; background-color: #f0f9ff; }
+    .opt-btn.correct { background-color: #dcfce7; border-color: #22c55e; color: #15803d; font-weight: 700; }
+    .opt-btn.wrong { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+
+    .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+    .score { font-weight: 700; color: #0284c7; font-size: 1rem; }
+    .btn-next { background-color: #0284c7; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-next:hover { background-color: #0369a1; }
+
+    .result-screen { text-align: center; display: none; padding: 20px 0; }
+    .result-screen h2 { color: #0284c7; font-size: 1.8rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <span class="badge">Form 3 • Optics Mini-Lab</span>
+      <h1>Law of Reflection Challenge</h1>
+      <p class="author">FU Tsz Kit @STFACYTSS</p>
+    </div>
+
+    <!-- Quiz & Visual Container -->
+    <div id="game-container">
+      <div class="interactive-box">
+        <canvas id="rayCanvas" width="300" height="140"></canvas>
+        <div class="slider-container">
+          <label for="angleSlider">Angle of Incidence ($i$): </label>
+          <input type="range" id="angleSlider" min="10" max="80" value="45">
+          <span id="angleValue">45°</span>
+        </div>
+      </div>
+
+      <div class="question-box">
+        <p class="q-text" id="questionText">Loading question...</p>
+        <div class="options" id="optionsContainer"></div>
+      </div>
+
+      <div class="footer">
+        <span class="score" id="scoreDisplay">Score: 0 / 3</span>
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+      </div>
+    </div>
+
+    <!-- Final Score Screen -->
+    <div class="result-screen" id="resultScreen">
+      🎉
+      <h2>Great Job!</h2>
+      <p id="finalScoreText" style="font-size: 1.1rem; color: #475569; margin-bottom: 20px;"></p>
+      <button class="btn-next" onclick="restartGame()">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Visual Ray Diagram Engine
+    const canvas = document.getElementById('rayCanvas');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('angleSlider');
+    const angleVal = document.getElementById('angleValue');
+
+    function drawRay(angleDeg) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = canvas.width / 2;
+      const cy = canvas.height - 20;
+      const len = 90;
+
+      // Draw Mirror Line
+      ctx.beginPath();
+      ctx.moveTo(20, cy);
+      ctx.lineTo(canvas.width - 20, cy);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Draw Normal (Dashed line)
+      ctx.beginPath();
+      ctx.setLineDash([4, 4]);
+      ctx.moveTo(cx, 10);
+      ctx.lineTo(cx, cy);
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const rad = (angleDeg * Math.PI) / 180;
+
+      // Incident Ray
+      const ix = cx - Math.sin(rad) * len;
+      const iy = cy - Math.cos(rad) * len;
+      ctx.beginPath();
+      ctx.moveTo(ix, iy);
+      ctx.lineTo(cx, cy);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Reflected Ray
+      const rx = cx + Math.sin(rad) * len;
+      const ry = cy - Math.cos(rad) * len;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(rx, ry);
+      ctx.strokeStyle = '#4ade80';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    slider.addEventListener('input', (e) => {
+      const val = e.target.value;
+      angleVal.textContent = val + '°';
+      drawRay(val);
+    });
+    drawRay(45);
+
+    // Quiz Questions Data
+    const questions = [
+      {
+        q: "According to the Law of Reflection, if the angle of incidence (i) is 35°, what is the angle of reflection (r)?",
+        options: ["35°", "55°", "90°", "145°"],
+        answer: 0
+      },
+      {
+        q: "Where are the angle of incidence and angle of reflection measured from?",
+        options: ["The mirror surface", "The normal line", "The incident ray itself", "The floor"],
+        answer: 1
+      },
+      {
+        q: "What type of image is formed by a flat plane mirror?",
+        options: ["Real and inverted", "Virtual and laterally inverted", "Real and magnified", "Virtual and upside down"],
+        answer: 1
+      }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+      answered = false;
+      document.getElementById('nextBtn').disabled = true;
+      const q = questions[currentQ];
+      document.getElementById('questionText').textContent = `Q${currentQ + 1}. ${q.q}`;
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(idx, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(idx, btn) {
+      if (answered) return;
+      answered = true;
+      const q = questions[currentQ];
+      const buttons = document.querySelectorAll('.opt-btn');
+
+      if (idx === q.answer) {
+        btn.classList.add('correct');
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        buttons[q.answer].classList.add('correct');
+      }
+
+      document.getElementById('scoreDisplay').textContent = `Score: ${score} / ${questions.length}`;
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    function nextQuestion() {
+      currentQ++;
+      if (currentQ < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('game-container').style.display = 'none';
+      const resultScreen = document.getElementById('resultScreen');
+      resultScreen.style.display = 'block';
+      document.getElementById('finalScoreText').textContent = `You scored ${score} out of ${questions.length}!`;
+    }
+
+    function restartGame() {
+      currentQ = 0;
+      score = 0;
+      document.getElementById('scoreDisplay').textContent = `Score: 0 / ${questions.length}`;
+      document.getElementById('resultScreen').style.display = 'none';
+      document.getElementById('game-container').style.display = 'block';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
