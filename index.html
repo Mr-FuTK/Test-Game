@@ -1,639 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physics Learning Hub - STFACYTSS</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Nunito & JetBrains Mono -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Nunito', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        sky: {
-                            25: '#f8fafc',
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #f0f9ff;
-            color: #0f172a;
-            user-select: none;
-            -webkit-user-select: none;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics Learning Hub | FU Tsz Kit @STFACYTSS</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f0f9ff; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Header & Branding */
+    header { background: #ffffff; border-bottom: 2px solid #e0f2fe; padding: 1.25rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .brand-title { color: #0284c7; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+    .brand-author { color: #64748b; font-size: 0.875rem; font-weight: 600; margin-top: 2px; }
 
-        /* Atom Orbit Animation for Logo */
-        @keyframes orbit1 {
-            0% { transform: rotate(0deg) rotateX(65deg) rotateZ(0deg); }
-            100% { transform: rotate(360deg) rotateX(65deg) rotateZ(360deg); }
-        }
-        @keyframes orbit2 {
-            0% { transform: rotate(60deg) rotateX(65deg) rotateZ(0deg); }
-            100% { transform: rotate(420deg) rotateX(65deg) rotateZ(360deg); }
-        }
-        .atom-ring-1 { animation: orbit1 6s linear infinite; }
-        .atom-ring-2 { animation: orbit2 8s linear infinite; }
+    /* Main Container */
+    main { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; flex: 1; width: 100%; }
 
-        /* Tactile 3D Buttons (Pale Blue & Ocean Theme) */
-        .btn-3d-sky {
-            background-color: #0284c7;
-            box-shadow: 0 4px 0 #0369a1;
-            color: white;
-            transition: all 0.1s ease;
-        }
-        .btn-3d-sky:hover { background-color: #38bdf8; }
-        .btn-3d-sky:active {
-            box-shadow: 0 0 0 #0369a1;
-            transform: translateY(4px);
-        }
+    /* Navigation Tabs */
+    .tabs-nav { display: flex; gap: 0.5rem; background: #e0f2fe; padding: 0.35rem; border-radius: 12px; margin-bottom: 2rem; }
+    .tab-btn { flex: 1; padding: 0.75rem 1rem; border: none; background: transparent; color: #0369a1; font-weight: 700; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .tab-btn.active { background: #ffffff; color: #0284c7; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15); }
 
-        .btn-3d-white {
-            background-color: #ffffff;
-            box-shadow: 0 4px 0 #cbd5e1;
-            color: #0284c7;
-            border: 2px solid #e2e8f0;
-            transition: all 0.1s ease;
-        }
-        .btn-3d-white:hover { background-color: #f8fafc; }
-        .btn-3d-white:active {
-            box-shadow: 0 0 0 #cbd5e1;
-            transform: translateY(4px);
-        }
+    /* Game Cards Grid */
+    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .game-card { background: #ffffff; border: 2px solid #e0f2fe; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; height: 100%; }
+    .game-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px rgba(2, 132, 199, 0.12); border-color: #38bdf8; }
+    .card-badge { display: inline-block; background: #e0f2fe; color: #0284c7; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.75rem; align-self: flex-start; }
+    .card-title { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; }
+    .card-desc { color: #64748b; font-size: 0.9rem; line-height: 1.4; margin-bottom: 1.5rem; }
+    .play-btn { background: #0284c7; color: #ffffff; border: none; padding: 0.75rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; width: 100%; text-align: center; }
+    .play-btn:hover { background: #0369a1; }
 
-        .btn-3d-rose {
-            background-color: #e11d48;
-            box-shadow: 0 4px 0 #be123c;
-            color: white;
-            transition: all 0.1s ease;
-        }
-        .btn-3d-rose:hover { background-color: #f43f5e; }
-        .btn-3d-rose:active {
-            box-shadow: 0 0 0 #be123c;
-            transform: translateY(4px);
-        }
+    /* Empty State */
+    .empty-state { text-align: center; padding: 4rem 2rem; background: #ffffff; border-radius: 16px; border: 2px dashed #cbd5e1; color: #64748b; grid-column: 1 / -1; }
+    .empty-state h3 { font-size: 1.25rem; color: #334155; margin-bottom: 0.5rem; }
 
-        /* Clean White Cards */
-        .bright-card {
-            background: #ffffff;
-            border: 2px solid #e0f2fe;
-            box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.05);
-        }
+    /* Fullscreen Game Launcher Lightbox */
+    .launcher-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1.5rem; }
+    .launcher-modal { background: #ffffff; width: 100%; max-width: 1000px; height: 90vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .launcher-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .launcher-title { font-weight: 700; color: #0369a1; font-size: 1.1rem; }
+    .close-btn { background: #ef4444; color: white; border: none; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .close-btn:hover { background: #dc2626; }
+    iframe { width: 100%; height: 100%; border: none; background: #ffffff; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f0f9ff; }
-        ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #7dd3fc; }
-    </style>
+    /* Footer */
+    footer { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 0.875rem; border-top: 1px solid #e0f2fe; margin-top: auto; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between bg-sky-50 text-slate-900">
+<body>
 
-    <!-- TOP HEADER / NAV BAR -->
-    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-sky-100 px-4 py-3 sm:px-8 shadow-sm">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            
-            <!-- Atom Logo & Branding -->
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchForm(currentForm)">
-                <div class="relative w-11 h-11 bg-sky-600 rounded-2xl flex items-center justify-center shadow-md shadow-sky-600/20 overflow-hidden">
-                    <svg class="w-9 h-9" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="7" class="fill-white animate-pulse"/>
-                        <ellipse cx="50" cy="50" rx="36" ry="13" class="stroke-sky-100 atom-ring-1 fill-none" stroke-width="3"/>
-                        <ellipse cx="50" cy="50" rx="36" ry="13" class="stroke-sky-200 atom-ring-2 fill-none" stroke-width="3"/>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-lg sm:text-xl font-black tracking-tight text-slate-900 flex items-center gap-2">
-                        Physics Learning Hub 
-                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 border border-sky-200 uppercase tracking-wide">PORTAL</span>
-                    </h1>
-                    <p class="text-xs font-bold text-sky-600">FU Tsz Kit @STFACYTSS</p>
-                </div>
-            </div>
+  <!-- Header -->
+  <header>
+    <div>
+      <div class="brand-title">⚡ Physics Learning Portal</div>
+      <div class="brand-author">FU Tsz Kit @STFACYTSS</div>
+    </div>
+  </header>
 
-            <!-- Teacher Portal Action Button -->
-            <div class="flex items-center space-x-3">
-                <button onclick="openTeacherModal()" class="flex items-center space-x-2 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-2xl shadow-md shadow-sky-600/20 transition-all text-xs font-black uppercase tracking-wider">
-                    <span>⚙️</span>
-                    <span class="hidden sm:inline">Teacher Portal</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- FORM SELECTION TABS -->
-    <nav class="bg-white/80 border-b border-sky-100 px-4 py-3 sticky top-[69px] z-20 backdrop-blur-sm">
-        <div class="max-w-xl mx-auto flex items-center justify-between gap-2">
-            <button onclick="switchForm(3)" id="tab-form-3" class="form-tab flex-1 py-2.5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-200">
-                🚀 Form 3
-            </button>
-            <button onclick="switchForm(4)" id="tab-form-4" class="form-tab flex-1 py-2.5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-200">
-                🌊 Form 4
-            </button>
-            <button onclick="switchForm(5)" id="tab-form-5" class="form-tab flex-1 py-2.5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-200">
-                🧲 Form 5
-            </button>
-            <button onclick="switchForm(6)" id="tab-form-6" class="form-tab flex-1 py-2.5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-200">
-                ⚛️ Form 6
-            </button>
-        </div>
-    </nav>
-
-    <!-- MAIN LOBBY CONTENT -->
-    <main class="flex-grow max-w-4xl mx-auto w-full px-4 pt-6 pb-16 flex flex-col items-center">
-        
-        <!-- DYNAMIC FORM HEADER BANNER -->
-        <div id="form-banner" class="w-full rounded-3xl p-6 text-white mb-8 shadow-lg shadow-sky-500/10 relative overflow-hidden transition-all duration-500 bg-gradient-to-r from-sky-500 to-blue-600">
-            <div class="relative z-10">
-                <span id="form-badge" class="bg-white/20 uppercase text-[10px] font-black px-3 py-1 rounded-full tracking-widest backdrop-blur-md">FORM 3</span>
-                <h2 id="form-title" class="text-2xl sm:text-3xl font-black mt-2">Form 3</h2>
-                <p class="text-xs font-bold text-sky-100 mt-1">FU Tsz Kit @STFACYTSS • Physics Games & Simulations</p>
-            </div>
-            <div id="banner-bg-icon" class="absolute -right-4 -bottom-6 text-8xl opacity-20 pointer-events-none select-none font-mono">
-                ⚛️
-            </div>
-        </div>
-
-        <!-- GAME LIST GRID / CONTAINER -->
-        <div id="game-grid-container" class="w-full">
-            <!-- Dynamic game cards or empty state inserted here by JS -->
-        </div>
-
-    </main>
-
-    <!-- IFRAME GAME LAUNCHER MODAL -->
-    <div id="game-launcher-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md hidden flex flex-col">
-        <!-- Modal Top Control Bar -->
-        <div class="bg-white border-b border-sky-100 px-4 py-3 flex items-center justify-between shadow-sm">
-            <div class="flex items-center space-x-3">
-                <span id="launcher-game-icon" class="text-2xl">🚀</span>
-                <div>
-                    <h3 id="launcher-game-title" class="text-base font-black text-slate-900 leading-tight">Game Title</h3>
-                    <p id="launcher-game-path" class="text-xs font-mono text-sky-600 font-bold">games/form3/optics.html</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="reloadIframe()" title="Reload Game" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-xs font-extrabold border border-sky-200 transition-colors">
-                    🔄 Reload
-                </button>
-                <button onclick="openInNewTab()" title="Open in New Tab" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-xs font-extrabold border border-sky-200 transition-colors">
-                    ↗️ Open New Tab
-                </button>
-                <button onclick="closeGameLauncher()" title="Close Game" class="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-rose-500 hover:text-white text-slate-500 rounded-xl font-black text-lg transition-colors ml-2">
-                    ✕
-                </button>
-            </div>
-        </div>
-
-        <!-- iFrame Sandbox Container -->
-        <div class="flex-grow w-full h-full bg-slate-100 relative">
-            <iframe id="game-iframe" class="w-full h-full border-0" src="about:blank" allow="autoplay; fullscreen"></iframe>
-        </div>
+  <!-- Main Lobby -->
+  <main>
+    <!-- Form Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchForm('form3')">Form 3</button>
+      <button class="tab-btn" onclick="switchForm('form4')">Form 4</button>
+      <button class="tab-btn" onclick="switchForm('form5')">Form 5</button>
+      <button class="tab-btn" onclick="switchForm('form6')">Form 6</button>
     </div>
 
-    <!-- TEACHER PORTAL MODAL -->
-    <div id="teacher-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-sky-100 w-full max-w-2xl rounded-3xl shadow-2xl p-6 max-h-[90vh] flex flex-col text-slate-900">
-            
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center pb-4 border-b border-sky-100">
-                <div class="flex items-center space-x-3">
-                    <span class="text-3xl">⚙️</span>
-                    <div>
-                        <h3 class="text-lg font-black text-slate-900">Teacher Management Portal</h3>
-                        <p class="text-xs font-bold text-sky-600">FU Tsz Kit @STFACYTSS • Physics Game Manager</p>
-                    </div>
-                </div>
-                <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-slate-700 font-black text-xl">✕</button>
-            </div>
+    <!-- Game Grid Container -->
+    <div id="gamesGrid" class="games-grid"></div>
+  </main>
 
-            <!-- Tab Buttons inside Modal -->
-            <div class="flex space-x-2 my-4 border-b border-sky-100 pb-3">
-                <button onclick="setTeacherTab('add')" id="teacher-tab-add" class="px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-600 text-white">
-                    ➕ Add Game File
-                </button>
-                <button onclick="setTeacherTab('manage')" id="teacher-tab-manage" class="px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-50 text-sky-700">
-                    📋 Manage Registered Games
-                </button>
-                <button onclick="setTeacherTab('code')" id="teacher-tab-code" class="px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-50 text-sky-700">
-                    💻 Export Code Snippet
-                </button>
-            </div>
-
-            <!-- Modal Content Area -->
-            <div class="flex-grow overflow-y-auto pr-1">
-                
-                <!-- TAB 1: ADD NEW GAME FORM -->
-                <div id="teacher-sec-add" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Target Form Level</label>
-                            <select id="new-game-form" class="w-full bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs font-bold text-slate-800 focus:outline-none focus:border-sky-500">
-                                <option value="3">Form 3</option>
-                                <option value="4">Form 4</option>
-                                <option value="5">Form 5</option>
-                                <option value="6">Form 6</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Game Icon / Emoji</label>
-                            <select id="new-game-icon" class="w-full bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs font-bold text-slate-800 focus:outline-none focus:border-sky-500">
-                                <option value="🔬">🔬 Microscope / Science</option>
-                                <option value="🚀">🚀 Rocket / Kinematics</option>
-                                <option value="⚡">⚡ Electricity / Circuits</option>
-                                <option value="🧲">🧲 Magnetism</option>
-                                <option value="🌊">🌊 Waves & Optics</option>
-                                <option value="🔭">🔭 Astrophysics</option>
-                                <option value="⚛️">⚛️ Atomic & Quantum</option>
-                                <option value="🍏">🍏 Forces & Newton</option>
-                                <option value="🌡️">🌡️ Heat & Thermodynamics</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Game Title</label>
-                        <input type="text" id="new-game-title" placeholder="e.g. Optics & Reflection Challenge" class="w-full bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs font-bold text-slate-800 focus:outline-none focus:border-sky-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">Topic Subtitle / Description</label>
-                        <input type="text" id="new-game-subtitle" placeholder="e.g. Incident rays, plane mirrors, and angles" class="w-full bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs font-bold text-slate-800 focus:outline-none focus:border-sky-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">HTML File Path (Relative to index.html)</label>
-                        <input type="text" id="new-game-filepath" placeholder="e.g. games/form3/optics/light_reflection.html" class="w-full bg-sky-50 border border-sky-200 font-mono text-xs text-sky-700 p-3 focus:outline-none focus:border-sky-500">
-                        <p class="text-[10px] text-slate-500 mt-1 font-semibold">Save your separate standalone game HTML file in this GitHub location.</p>
-                    </div>
-
-                    <button onclick="registerNewGame()" class="w-full btn-3d-sky py-3 rounded-2xl font-black text-xs uppercase tracking-wider mt-2">
-                        + Add Game to Lobby
-                    </button>
-                </div>
-
-                <!-- TAB 2: MANAGE & DELETE EXISTING GAMES -->
-                <div id="teacher-sec-manage" class="hidden space-y-3">
-                    <p class="text-xs text-slate-500 font-bold mb-3">Below are the games currently registered in your browser memory:</p>
-                    <div id="manage-games-list" class="space-y-2">
-                        <!-- Rendered by JS -->
-                    </div>
-                </div>
-
-                <!-- TAB 3: EXPORT JSON CODE SNIPPET -->
-                <div id="teacher-sec-code" class="hidden space-y-3">
-                    <p class="text-xs text-slate-600 font-bold">
-                        Copy this array code and paste it inside <code class="text-sky-700 font-mono font-extrabold">DEFAULT_GAMES = [...]</code> in your <code class="text-amber-600 font-mono font-extrabold">index.html</code> file on GitHub to make your added games permanent for all students!
-                    </p>
-                    <textarea id="registry-json-code" class="w-full h-56 p-4 font-mono text-xs bg-slate-900 text-sky-300 rounded-2xl border border-slate-800 focus:outline-none resize-none" readonly></textarea>
-                    <button onclick="copyCodeSnippet()" class="btn-3d-sky px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider">
-                        📋 Copy Code Snippet
-                    </button>
-                </div>
-
-            </div>
-        </div>
+  <!-- Game Launcher Overlay -->
+  <div id="launcherOverlay" class="launcher-overlay">
+    <div class="launcher-modal">
+      <div class="launcher-header">
+        <span class="launcher-title" id="activeGameTitle">Loading Game...</span>
+        <button class="close-btn" onclick="closeGame()">Close Game ✕</button>
+      </div>
+      <iframe id="gameIframe" src=""></iframe>
     </div>
+  </div>
 
-    <!-- FOOTER -->
-    <footer class="border-t border-sky-100 bg-white py-6 text-center text-xs font-bold text-slate-500 shadow-inner">
-        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center space-x-2">
-                <span>⚛️</span>
-                <span class="text-slate-800 font-extrabold">Physics Hub</span>
-                <span class="text-sky-600 font-extrabold">• FU Tsz Kit @STFACYTSS</span>
-            </div>
-            <p class="text-slate-400">High School Physics Platform (Form 3 - Form 6)</p>
+  <footer>
+    Physics Educational Portal &copy; FU Tsz Kit @STFACYTSS
+  </footer>
+
+  <script>
+    // ==========================================
+    // ⚙️ ADD YOUR GAMES HERE IN THE BACKGROUND CODE
+    // ==========================================
+    const GAMES_LIST = [
+      {
+        id: "f3_optics_1",
+        form: "form3",
+        title: "Law of Reflection Challenge",
+        subtitle: "Ray diagrams & angles of incidence",
+        badge: "Form 3 • Optics",
+        filePath: "games/form3/light/reflection_test.html"
+      }
+      /* 
+        To add another game in the background, add a comma above and paste:
+        ,{
+          id: "f3_optics_2",
+          form: "form3",
+          title: "Refraction & Lenses Lab",
+          subtitle: "Snell's Law & Refractive Index",
+          badge: "Form 3 • Optics",
+          filePath: "games/form3/light/refraction.html"
+        }
+      */
+    ];
+
+    let currentForm = 'form3';
+
+    function switchForm(formKey) {
+      currentForm = formKey;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(formKey));
+      });
+      renderGames();
+    }
+
+    function renderGames() {
+      const grid = document.getElementById('gamesGrid');
+      const activeGames = GAMES_LIST.filter(g => g.form === currentForm);
+
+      if (activeGames.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <h3>No Games Available Yet</h3>
+            <p>Games for ${currentForm.toUpperCase()} are currently under development by FU Tsz Kit @STFACYTSS.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = activeGames.map(game => `
+        <div class="game-card">
+          <div>
+            <span class="card-badge">${game.badge}</span>
+            <div class="card-title">${game.title}</div>
+            <div class="card-desc">${game.subtitle}</div>
+          </div>
+          <button class="play-btn" onclick="launchGame('${game.filePath}', '${game.title}')">Play Game 🚀</button>
         </div>
-    </footer>
+      `).join('');
+    }
 
-    <!-- MAIN JAVASCRIPT LOBBY ENGINE -->
-    <script>
-        /**
-         * DEFAULT_GAMES ARRAY
-         * Initially empty so you start with a clean lobby environment.
-         * 
-         * To hardcode games permanently for all students:
-         * Add objects to this array using the format below:
-         * 
-         * const DEFAULT_GAMES = [
-         *   {
-         *     id: "f3_optics_1",
-         *     form: 3,
-         *     title: "Light & Reflection Lab",
-         *     subtitle: "Ray diagrams & angles of incidence",
-         *     icon: "🌊",
-         *     filePath: "games/form3/optics/light_reflection.html"
-         *   }
-         * ];
-         */
-        const DEFAULT_GAMES = [
-  {
-    id: "f3_optics_1",
-    form: 3,
-    title: "Light & Reflection Lab",
-    subtitle: "Ray diagrams & angles of incidence",
-    icon: "🌊",
-    filePath: "games/form3/optics/light_reflection.html"
-  }
-];
+    function launchGame(path, title) {
+      document.getElementById('activeGameTitle').textContent = title;
+      document.getElementById('gameIframe').src = path;
+      document.getElementById('launcherOverlay').style.display = 'flex';
+    }
 
-        // Current active form level state (3, 4, 5, or 6)
-        let currentForm = 3;
-        let currentActiveLaunchUrl = '';
+    function closeGame() {
+      document.getElementById('launcherOverlay').style.display = 'none';
+      document.getElementById('gameIframe').src = '';
+    }
 
-        // Form Banners Configuration
-        const FORM_CONFIG = {
-            3: { title: "Form 3", badge: "FORM 3", bgIcon: "🚀", themeColor: "from-sky-500 to-blue-600" },
-            4: { title: "Form 4", badge: "FORM 4", bgIcon: "🌊", themeColor: "from-blue-500 to-indigo-600" },
-            5: { title: "Form 5", badge: "FORM 5", bgIcon: "🧲", themeColor: "from-indigo-500 to-sky-600" },
-            6: { title: "Form 6", badge: "FORM 6", bgIcon: "⚛️", themeColor: "from-sky-600 to-blue-700" }
-        };
-
-        // --- GAME STORAGE HELPERS ---
-
-        function getAllGames() {
-            const stored = localStorage.getItem('physics_hub_custom_games');
-            let customGames = [];
-            if (stored) {
-                try { customGames = JSON.parse(stored); } catch(e) {}
-            }
-            return [...DEFAULT_GAMES, ...customGames];
-        }
-
-        function saveCustomGames(customGamesArray) {
-            localStorage.setItem('physics_hub_custom_games', JSON.stringify(customGamesArray));
-        }
-
-        // --- UI RENDER & FORM SWITCHING ---
-
-        function switchForm(formNum) {
-            currentForm = formNum;
-
-            // Update Form Tabs Styling
-            [3, 4, 5, 6].forEach(num => {
-                const tab = document.getElementById(`tab-form-${num}`);
-                if (tab) {
-                    if (num === formNum) {
-                        tab.className = "form-tab flex-1 py-2.5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-200 bg-sky-600 text-white shadow-md shadow-sky-600/20";
-                    } else {
-                        tab.className = "form-tab flex-1 py-2.5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-200 text-slate-500 hover:text-sky-600 bg-sky-50/50 hover:bg-sky-100/50";
-                    }
-                }
-            });
-
-            // Update Form Header Banner
-            const config = FORM_CONFIG[formNum];
-            if (config) {
-                document.getElementById('form-title').innerText = config.title;
-                document.getElementById('form-badge').innerText = config.badge;
-                document.getElementById('banner-bg-icon').innerText = config.bgIcon;
-                document.getElementById('form-banner').className = `w-full rounded-3xl p-6 text-white mb-8 shadow-lg shadow-sky-500/10 relative overflow-hidden transition-all duration-500 bg-gradient-to-r ${config.themeColor}`;
-            }
-
-            renderGameGrid();
-        }
-
-        function renderGameGrid() {
-            const container = document.getElementById('game-grid-container');
-            container.innerHTML = '';
-
-            const allGames = getAllGames();
-            const formGames = allGames.filter(g => parseInt(g.form) === parseInt(currentForm));
-
-            // EMPTY STATE: Displayed when no games exist for the selected Form level
-            if (formGames.length === 0) {
-                container.innerHTML = `
-                    <div class="bright-card w-full p-8 sm:p-12 rounded-3xl text-center flex flex-col items-center border border-sky-200">
-                        <div class="w-16 h-16 bg-sky-50 text-sky-600 rounded-3xl flex items-center justify-center text-3xl mb-4 border border-sky-100">
-                            🔬
-                        </div>
-                        <h3 class="text-xl font-black text-slate-900 mb-1">No Games Added for Form ${currentForm} Yet</h3>
-                        <p class="text-xs text-sky-600 font-bold mb-2">FU Tsz Kit @STFACYTSS Physics Portal</p>
-                        <p class="text-xs text-slate-500 max-w-md mb-6 font-semibold">
-                            You can add standalone game HTML files (e.g. <code class="text-sky-700 bg-sky-50 px-2 py-0.5 rounded font-mono border border-sky-100">games/form${currentForm}/optics.html</code>) using the Teacher Portal!
-                        </p>
-                        <button onclick="openTeacherModal()" class="btn-3d-sky px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider">
-                            + Add First Game to Form ${currentForm}
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            // GRID VIEW: Display cards when games exist
-            const gridDiv = document.createElement('div');
-            gridDiv.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 w-full";
-
-            formGames.forEach(game => {
-                const card = document.createElement('div');
-                card.className = "bright-card p-5 rounded-3xl flex flex-col justify-between transition-all hover:border-sky-300 relative overflow-hidden group";
-                
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-3xl">${game.icon || '🚀'}</span>
-                            <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                                Form ${game.form}
-                            </span>
-                        </div>
-                        <h4 class="font-extrabold text-slate-900 text-base leading-snug group-hover:text-sky-600 transition-colors">${game.title}</h4>
-                        <p class="text-xs text-slate-500 font-bold mt-1 mb-3">${game.subtitle || 'Physics Exercise'}</p>
-                        <code class="text-[10px] font-mono text-sky-800 bg-sky-50 px-2.5 py-1 rounded-lg block truncate border border-sky-100">${game.filePath}</code>
-                    </div>
-
-                    <div class="mt-5">
-                        <button onclick="launchGame('${game.filePath}', '${game.title.replace(/'/g, "\\'")}', '${game.icon || '🚀'}')" 
-                                class="w-full btn-3d-sky py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider">
-                            🚀 Play Game
-                        </button>
-                    </div>
-                `;
-                gridDiv.appendChild(card);
-            });
-
-            container.appendChild(gridDiv);
-        }
-
-        // --- IFRAME GAME LAUNCHER CONTROLS ---
-
-        function launchGame(filePath, title, icon) {
-            currentActiveLaunchUrl = filePath;
-            document.getElementById('launcher-game-title').innerText = title;
-            document.getElementById('launcher-game-icon').innerText = icon || '🚀';
-            document.getElementById('launcher-game-path').innerText = filePath;
-
-            const modal = document.getElementById('game-launcher-modal');
-            const iframe = document.getElementById('game-iframe');
-
-            modal.classList.remove('hidden');
-            iframe.src = filePath;
-        }
-
-        function closeGameLauncher() {
-            document.getElementById('game-launcher-modal').classList.add('hidden');
-            document.getElementById('game-iframe').src = "about:blank";
-        }
-
-        function reloadIframe() {
-            const iframe = document.getElementById('game-iframe');
-            if (iframe && currentActiveLaunchUrl) {
-                iframe.src = currentActiveLaunchUrl;
-            }
-        }
-
-        function openInNewTab() {
-            if (currentActiveLaunchUrl) {
-                window.open(currentActiveLaunchUrl, '_blank');
-            }
-        }
-
-        // --- TEACHER MANAGEMENT PORTAL ---
-
-        function openTeacherModal() {
-            document.getElementById('teacher-modal').classList.remove('hidden');
-            renderManageList();
-            updateCodeSnippetOutput();
-        }
-
-        function closeTeacherModal() {
-            document.getElementById('teacher-modal').classList.add('hidden');
-        }
-
-        function setTeacherTab(tabName) {
-            document.getElementById('teacher-sec-add').classList.toggle('hidden', tabName !== 'add');
-            document.getElementById('teacher-sec-manage').classList.toggle('hidden', tabName !== 'manage');
-            document.getElementById('teacher-sec-code').classList.toggle('hidden', tabName !== 'code');
-
-            document.getElementById('teacher-tab-add').className = tabName === 'add' ? "px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-600 text-white" : "px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-50 text-sky-700";
-            document.getElementById('teacher-tab-manage').className = tabName === 'manage' ? "px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-600 text-white" : "px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-50 text-sky-700";
-            document.getElementById('teacher-tab-code').className = tabName === 'code' ? "px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-600 text-white" : "px-4 py-2 rounded-xl text-xs font-black transition-all bg-sky-50 text-sky-700";
-        }
-
-        function registerNewGame() {
-            const formNum = document.getElementById('new-game-form').value;
-            const title = document.getElementById('new-game-title').value.trim();
-            const subtitle = document.getElementById('new-game-subtitle').value.trim();
-            const icon = document.getElementById('new-game-icon').value;
-            let filePath = document.getElementById('new-game-filepath').value.trim();
-
-            if (!title) {
-                alert("Please enter a Game Title.");
-                return;
-            }
-
-            if (!filePath) {
-                filePath = `games/form${formNum}/${title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.html`;
-            }
-
-            const newGame = {
-                id: `g_custom_${Date.now()}`,
-                form: parseInt(formNum),
-                title: title,
-                subtitle: subtitle || "Physics Simulation",
-                icon: icon,
-                filePath: filePath
-            };
-
-            const stored = localStorage.getItem('physics_hub_custom_games');
-            let customGames = [];
-            if (stored) {
-                try { customGames = JSON.parse(stored); } catch(e) {}
-            }
-            customGames.push(newGame);
-            saveCustomGames(customGames);
-
-            // Clear Input Form
-            document.getElementById('new-game-title').value = '';
-            document.getElementById('new-game-subtitle').value = '';
-            document.getElementById('new-game-filepath').value = '';
-
-            switchForm(formNum);
-            renderManageList();
-            updateCodeSnippetOutput();
-            setTeacherTab('manage');
-        }
-
-        function renderManageList() {
-            const listDiv = document.getElementById('manage-games-list');
-            listDiv.innerHTML = '';
-
-            const allGames = getAllGames();
-            if (allGames.length === 0) {
-                listDiv.innerHTML = '<p class="text-xs text-slate-400 font-bold text-center py-4">No games registered yet.</p>';
-                return;
-            }
-
-            allGames.forEach(game => {
-                const item = document.createElement('div');
-                item.className = "bg-sky-50 p-3 rounded-2xl border border-sky-100 flex items-center justify-between text-xs";
-                item.innerHTML = `
-                    <div class="flex items-center space-x-3 truncate mr-2">
-                        <span class="text-xl">${game.icon || '🚀'}</span>
-                        <div class="truncate">
-                            <span class="font-extrabold text-slate-900 block truncate">${game.title}</span>
-                            <span class="font-mono text-[10px] text-sky-700 block truncate">Form ${game.form} • ${game.filePath}</span>
-                        </div>
-                    </div>
-                    <button onclick="deleteGame('${game.id}')" class="btn-3d-rose px-3 py-1.5 rounded-xl font-extrabold text-[10px] flex-shrink-0">
-                        🗑️ Delete
-                    </button>
-                `;
-                listDiv.appendChild(item);
-            });
-        }
-
-        function deleteGame(id) {
-            const stored = localStorage.getItem('physics_hub_custom_games');
-            if (stored) {
-                try {
-                    let customGames = JSON.parse(stored);
-                    customGames = customGames.filter(g => g.id !== id);
-                    saveCustomGames(customGames);
-                } catch(e) {}
-            }
-            renderGameGrid();
-            renderManageList();
-            updateCodeSnippetOutput();
-        }
-
-        function updateCodeSnippetOutput() {
-            const allGames = getAllGames();
-            const snippetText = "const DEFAULT_GAMES = " + JSON.stringify(allGames, null, 2) + ";";
-            document.getElementById('registry-json-code').value = snippetText;
-        }
-
-        function copyCodeSnippet() {
-            const copyText = document.getElementById('registry-json-code');
-            copyText.select();
-            document.execCommand('copy');
-            alert("📋 Code Snippet copied! Paste this inside index.html on GitHub to make all games permanent.");
-        }
-
-        // Initialize Lobby on Window Load
-        window.onload = function() {
-            switchForm(3);
-        };
-    </script>
+    // Initial Render
+    renderGames();
+  </script>
 </body>
 </html>
