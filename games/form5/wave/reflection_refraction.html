@@ -23,7 +23,7 @@
     .stage-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
     .stage-subtitle { font-size: 0.9rem; color: #64748b; margin-bottom: 20px; }
 
-    /* ================= STAGE 1: MATCHING ================= */
+    /* STAGE 1: MATCHING */
     .matching-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
     .match-card { background: #ffffff; border: 2px solid #e2e8f0; border-bottom-width: 4px; border-radius: 14px; padding: 14px 10px; font-size: 0.95rem; font-weight: 700; color: #334155; text-align: center; cursor: pointer; user-select: none; transition: all 0.15s ease; min-height: 56px; display: flex; align-items: center; justify-content: center; }
     .match-card:active { transform: translateY(2px); border-bottom-width: 2px; }
@@ -31,7 +31,7 @@
     .match-card.matched { border-color: #86efac; background-color: #f0fdf4; color: #16a34a; opacity: 0.4; cursor: default; pointer-events: none; border-bottom-width: 2px; }
     .match-card.wrong { border-color: #fca5a5; background-color: #fef2f2; color: #dc2626; animation: shake 0.3s; }
 
-    /* ================= STAGE 2: FILL IN THE BLANK ================= */
+    /* STAGE 2: FILL IN THE BLANK */
     .prompt-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px; font-size: 1.1rem; font-weight: 600; line-height: 1.5; color: #1e293b; }
     .blank-spot { display: inline-block; border-bottom: 3px solid #0284c7; min-width: 90px; color: #0284c7; text-align: center; font-weight: 800; padding: 0 6px; }
     .options-list { display: flex; flex-direction: column; gap: 10px; }
@@ -39,14 +39,14 @@
     .option-btn:hover { border-color: #93c5fd; background: #f0f9ff; }
     .option-btn.selected { border-color: #38bdf8; background: #e0f2fe; color: #0284c7; }
 
-    /* ================= STAGE 3: SENTENCE STRUCTURE ================= */
+    /* STAGE 3: SENTENCE STRUCTURE */
     .target-dropzone { min-height: 80px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 14px; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; margin-bottom: 20px; }
     .word-bank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: auto; padding-top: 10px; }
     .word-tile { background: #ffffff; border: 2px solid #cbd5e1; border-bottom-width: 4px; border-radius: 10px; padding: 8px 14px; font-weight: 700; font-size: 0.95rem; color: #334155; cursor: pointer; user-select: none; transition: all 0.15s; }
     .word-tile:active { transform: translateY(2px); border-bottom-width: 2px; }
     .word-tile.used { opacity: 0.2; pointer-events: none; background: #e2e8f0; border-color: #cbd5e1; border-bottom-width: 2px; }
 
-    /* Bottom Feedback Bar (Duolingo Style) */
+    /* Bottom Feedback Bar */
     .bottom-bar { padding: 16px 20px; background: #ffffff; border-top: 2px solid #e0f2fe; display: flex; justify-content: space-between; align-items: center; }
     .btn-action { background: #0284c7; color: white; border: none; border-radius: 12px; padding: 14px 28px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 0 #0369a1; transition: all 0.15s; width: 100%; text-align: center; }
     .btn-action:active { transform: translateY(3px); box-shadow: 0 1px 0 #0369a1; }
@@ -106,16 +106,13 @@
     <div class="feedback-overlay" id="feedbackOverlay">
       <div class="feedback-title" id="feedbackTitle"></div>
       <div class="feedback-desc" id="feedbackDesc"></div>
-      <button class="btn-action" id="feedbackBtn" onclick="nextQuestion()">Continue</button>
+      <button class="btn-action" id="feedbackBtn" onclick="handleFeedbackAction()">Continue</button>
     </div>
   </div>
 
   <script>
-    // ================= DATA REGISTRY =================
-    
-    // Stage 1: Matching Vocab (Split into pages of 5 max)
+    // DATA REGISTRY
     const matchingData = [
-      // Page 1 (5 pairs)
       [
         { en: "ripple tank", cn: "水波槽" },
         { en: "plane wave", cn: "平面波" },
@@ -123,7 +120,6 @@
         { en: "vibrator", cn: "震動器" },
         { en: "reflection", cn: "反射" }
       ],
-      // Page 2 (5 pairs)
       [
         { en: "barrier", cn: "障礙物" },
         { en: "angle of incidence", cn: "入射角" },
@@ -131,14 +127,12 @@
         { en: "refraction", cn: "折射" },
         { en: "water depth", cn: "水深" }
       ],
-      // Page 3 (2 pairs)
       [
         { en: "shallow", cn: "淺" },
         { en: "adjust", cn: "調整" }
       ]
     ];
 
-    // Stage 2: Fill in the Blanks (4 Questions + Options)
     const fillBlankData = [
       {
         sentence: "A <span class='blank-spot'>?</span>, also called a plane wave, is produced by a vibrating bar.",
@@ -162,7 +156,6 @@
       }
     ];
 
-    // Stage 3: Sentence Structure (English -> Chinese ordering)
     const sentenceData = [
       {
         english: "The frequency of the wave is now doubled by speeding up the vibrator.",
@@ -181,19 +174,19 @@
       }
     ];
 
-    // Game Controller State
-    let currentStage = 1; // 1: Matching, 2: Fill Blank, 3: Sentence Structure
+    // State Variables
+    let currentStage = 1;
     let matchPageIndex = 0;
     let fillIndex = 0;
     let sentenceIndex = 0;
 
-    // Sub-stage tracking
     let selectedCard1 = null;
     let selectedCard2 = null;
     let matchedPairsCount = 0;
 
     let selectedOption = null;
     let constructedSentence = [];
+    let lastAttemptCorrect = false;
 
     const totalSteps = matchingData.length + fillBlankData.length + sentenceData.length;
     let currentStep = 1;
@@ -203,12 +196,10 @@
       document.getElementById('progressFill').style.width = pct + '%';
     }
 
-    // Shuffle helper
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
     }
 
-    // Init & Render Router
     function render() {
       updateProgress();
       document.getElementById('feedbackOverlay').classList.remove('show', 'correct', 'wrong');
@@ -225,14 +216,13 @@
       }
     }
 
-    // ================= STAGE 1 LOGIC =================
+    // STAGE 1: MATCHING
     function renderMatchingPage() {
       const pairs = matchingData[matchPageIndex];
       matchedPairsCount = 0;
       selectedCard1 = null;
       selectedCard2 = null;
 
-      // Prepare cards array (EN column and CN column)
       let leftList = pairs.map((p, i) => ({ text: p.en, id: i, type: 'en' }));
       let rightList = pairs.map((p, i) => ({ text: p.cn, id: i, type: 'cn' }));
 
@@ -249,7 +239,6 @@
       const grid = document.getElementById('matchGrid');
       grid.innerHTML = '';
 
-      // Interleave or render side-by-side
       for (let i = 0; i < Math.max(leftList.length, rightList.length); i++) {
         if (leftList[i]) grid.appendChild(createMatchCard(leftList[i]));
         if (rightList[i]) grid.appendChild(createMatchCard(rightList[i]));
@@ -274,9 +263,7 @@
           selectedCard1 = card;
         } else {
           selectedCard2 = card;
-          // Check match
           if (selectedCard1.dataset.id === selectedCard2.dataset.id && selectedCard1.dataset.type !== selectedCard2.dataset.type) {
-            // Correct
             selectedCard1.classList.remove('selected');
             selectedCard2.classList.remove('selected');
             selectedCard1.classList.add('matched');
@@ -298,7 +285,6 @@
               }, 400);
             }
           } else {
-            // Wrong match
             selectedCard1.classList.add('wrong');
             selectedCard2.classList.add('wrong');
             const c1 = selectedCard1;
@@ -315,7 +301,7 @@
       return card;
     }
 
-    // ================= STAGE 2 LOGIC =================
+    // STAGE 2: FILL IN THE BLANK
     function renderFillBlank() {
       document.getElementById('bottomBar').style.display = 'flex';
       const actionBtn = document.getElementById('actionBtn');
@@ -349,7 +335,7 @@
       document.getElementById('actionBtn').disabled = false;
     }
 
-    // ================= STAGE 3 LOGIC =================
+    // STAGE 3: SENTENCE STRUCTURE
     function renderSentenceStructure() {
       document.getElementById('bottomBar').style.display = 'flex';
       const actionBtn = document.getElementById('actionBtn');
@@ -412,7 +398,7 @@
       document.getElementById('actionBtn').disabled = constructedSentence.length === 0;
     }
 
-    // ================= CHECK ANSWER ACTION =================
+    // CHECK ANSWER ACTION
     function handleActionButton() {
       const overlay = document.getElementById('feedbackOverlay');
       const title = document.getElementById('feedbackTitle');
@@ -421,24 +407,68 @@
 
       if (currentStage === 2) {
         const q = fillBlankData[fillIndex];
-        const isCorrect = selectedOption === q.target;
+        lastAttemptCorrect = (selectedOption === q.target);
 
-        overlay.className = `feedback-overlay ${isCorrect ? 'correct' : 'wrong'} show`;
-        title.innerHTML = isCorrect ? '🎉 泰棒辣！(Awesome!)' : '❌ 正確答案是：';
-        desc.textContent = isCorrect ? 'Great job! You picked the right physics term.' : q.target;
-        feedbackBtn.style.backgroundColor = isCorrect ? '#22c55e' : '#ef4444';
+        overlay.className = `feedback-overlay ${lastAttemptCorrect ? 'correct' : 'wrong'} show`;
+        if (lastAttemptCorrect) {
+          title.innerHTML = '🎉 答對了！(Correct!)';
+          desc.textContent = 'Great job! You picked the right physics term.';
+          feedbackBtn.textContent = 'Continue';
+          feedbackBtn.style.backgroundColor = '#22c55e';
+        } else {
+          title.innerHTML = '❌ 答案不正確 (Try Again)';
+          desc.textContent = 'Re-read the sentence carefully and try selecting another word.';
+          feedbackBtn.textContent = 'Try Again 🔄';
+          feedbackBtn.style.backgroundColor = '#ef4444';
+        }
 
       } else if (currentStage === 3) {
         const s = sentenceData[sentenceIndex];
         const userSequence = constructedSentence.map(i => i.word).join('');
         const targetSequence = s.correctCn.join('');
 
-        const isCorrect = userSequence === targetSequence;
+        lastAttemptCorrect = (userSequence === targetSequence);
 
-        overlay.className = `feedback-overlay ${isCorrect ? 'correct' : 'wrong'} show`;
-        title.innerHTML = isCorrect ? '🎉 不錯喔！(Spot on!)' : '❌ 正確翻譯是：';
-        desc.textContent = isCorrect ? 'Excellent Chinese sentence construction!' : targetSequence;
-        feedbackBtn.style.backgroundColor = isCorrect ? '#22c55e' : '#ef4444';
+        overlay.className = `feedback-overlay ${lastAttemptCorrect ? 'correct' : 'wrong'} show`;
+        if (lastAttemptCorrect) {
+          title.innerHTML = '🎉 不錯喔！(Spot on!)';
+          desc.textContent = 'Excellent Chinese sentence construction!';
+          feedbackBtn.textContent = 'Continue';
+          feedbackBtn.style.backgroundColor = '#22c55e';
+        } else {
+          title.innerHTML = '❌ 順序不正確 (Try Again)';
+          desc.textContent = 'Check the word order carefully and try arranging them again.';
+          feedbackBtn.textContent = 'Try Again 🔄';
+          feedbackBtn.style.backgroundColor = '#ef4444';
+        }
+      }
+    }
+
+    // HANDLE FEEDBACK BUTTON CLICK (CONTINUE OR RETRY)
+    function handleFeedbackAction() {
+      if (lastAttemptCorrect) {
+        nextQuestion();
+      } else {
+        retryQuestion();
+      }
+    }
+
+    function retryQuestion() {
+      document.getElementById('feedbackOverlay').classList.remove('show');
+      
+      if (currentStage === 2) {
+        // Reset selections for Fill in the Blank
+        selectedOption = null;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        const blankSpot = document.querySelector('.blank-spot');
+        if (blankSpot) blankSpot.textContent = '?';
+        document.getElementById('actionBtn').disabled = true;
+
+      } else if (currentStage === 3) {
+        // Reset constructed sentence for Sentence Structure
+        constructedSentence = [];
+        document.querySelectorAll('.word-tile').forEach(t => t.classList.remove('used'));
+        renderTargetZone();
       }
     }
 
