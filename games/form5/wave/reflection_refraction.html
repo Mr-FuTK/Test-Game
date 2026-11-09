@@ -10,7 +10,7 @@
     
     .app-container { max-width: 520px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 20px; border: 2px solid #e0f2fe; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.08); display: flex; flex-direction: column; flex: 1; overflow: hidden; position: relative; }
     
-    /* Top Progress Bar & Header */
+    /* Header & Progress Bar */
     .header { padding: 16px 20px 10px; border-bottom: 1px solid #f1f5f9; }
     .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .stage-badge { background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
@@ -46,18 +46,19 @@
     .word-tile:active { transform: translateY(2px); border-bottom-width: 2px; }
     .word-tile.used { opacity: 0.2; pointer-events: none; background: #e2e8f0; border-color: #cbd5e1; border-bottom-width: 2px; }
 
-    /* Bottom Feedback Bar */
+    /* Bottom Action Bar */
     .bottom-bar { padding: 16px 20px; background: #ffffff; border-top: 2px solid #e0f2fe; display: flex; justify-content: space-between; align-items: center; }
     .btn-action { background: #0284c7; color: white; border: none; border-radius: 12px; padding: 14px 28px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 0 #0369a1; transition: all 0.15s; width: 100%; text-align: center; }
     .btn-action:active { transform: translateY(3px); box-shadow: 0 1px 0 #0369a1; }
     .btn-action:disabled { background: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
 
+    /* Bottom Feedback Drawer */
     .feedback-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; display: none; flex-direction: column; gap: 12px; transform: translateY(100%); transition: transform 0.3s ease; z-index: 10; }
     .feedback-overlay.show { transform: translateY(0); display: flex; }
     .feedback-overlay.correct { background-color: #dcfce7; border-top: 3px solid #22c55e; color: #15803d; }
     .feedback-overlay.wrong { background-color: #fee2e2; border-top: 3px solid #ef4444; color: #b91c1c; }
     .feedback-title { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .feedback-desc { font-size: 0.95rem; font-weight: 600; }
+    .feedback-desc { font-size: 0.95rem; font-weight: 600; line-height: 1.4; }
 
     /* Final Result Screen */
     .result-screen { text-align: center; display: none; flex-direction: column; justify-content: center; align-items: center; flex: 1; padding: 30px 20px; }
@@ -85,9 +86,7 @@
     </div>
 
     <!-- Active Stage View -->
-    <div class="stage-body" id="stageBody">
-      <!-- Dynamic Content Rendered by JS -->
-    </div>
+    <div class="stage-body" id="stageBody"></div>
 
     <!-- Final Result Screen -->
     <div class="result-screen" id="resultScreen">
@@ -187,6 +186,7 @@
     let selectedOption = null;
     let constructedSentence = [];
     let lastAttemptCorrect = false;
+    let wrongAttempts = 0; // Tracks consecutive wrong answers for active question
 
     const totalSteps = matchingData.length + fillBlankData.length + sentenceData.length;
     let currentStep = 1;
@@ -280,6 +280,7 @@
                   render();
                 } else {
                   currentStage = 2;
+                  wrongAttempts = 0;
                   render();
                 }
               }, 400);
@@ -410,14 +411,22 @@
         lastAttemptCorrect = (selectedOption === q.target);
 
         overlay.className = `feedback-overlay ${lastAttemptCorrect ? 'correct' : 'wrong'} show`;
+        
         if (lastAttemptCorrect) {
+          wrongAttempts = 0;
           title.innerHTML = '🎉 答對了！(Correct!)';
           desc.textContent = 'Great job! You picked the right physics term.';
           feedbackBtn.textContent = 'Continue';
           feedbackBtn.style.backgroundColor = '#22c55e';
         } else {
-          title.innerHTML = '❌ 答案不正確 (Try Again)';
-          desc.textContent = 'Re-read the sentence carefully and try selecting another word.';
+          wrongAttempts++;
+          if (wrongAttempts >= 3) {
+            title.innerHTML = '💡 提示 (Hint after 3 attempts)';
+            desc.innerHTML = `正確答案是：<strong>${q.target}</strong>`;
+          } else {
+            title.innerHTML = `❌ 答案不正確 (嘗試 ${wrongAttempts}/3)`;
+            desc.textContent = 'Re-read the sentence carefully and try selecting another word.';
+          }
           feedbackBtn.textContent = 'Try Again 🔄';
           feedbackBtn.style.backgroundColor = '#ef4444';
         }
@@ -430,14 +439,22 @@
         lastAttemptCorrect = (userSequence === targetSequence);
 
         overlay.className = `feedback-overlay ${lastAttemptCorrect ? 'correct' : 'wrong'} show`;
+        
         if (lastAttemptCorrect) {
+          wrongAttempts = 0;
           title.innerHTML = '🎉 不錯喔！(Spot on!)';
           desc.textContent = 'Excellent Chinese sentence construction!';
           feedbackBtn.textContent = 'Continue';
           feedbackBtn.style.backgroundColor = '#22c55e';
         } else {
-          title.innerHTML = '❌ 順序不正確 (Try Again)';
-          desc.textContent = 'Check the word order carefully and try arranging them again.';
+          wrongAttempts++;
+          if (wrongAttempts >= 3) {
+            title.innerHTML = '💡 提示 (Hint after 3 attempts)';
+            desc.innerHTML = `正確順序為：<br><strong>${s.correctCn.join(' ')}</strong>`;
+          } else {
+            title.innerHTML = `❌ 順序不正確 (嘗試 ${wrongAttempts}/3)`;
+            desc.textContent = 'Check the word order carefully and try arranging them again.';
+          }
           feedbackBtn.textContent = 'Try Again 🔄';
           feedbackBtn.style.backgroundColor = '#ef4444';
         }
@@ -457,7 +474,6 @@
       document.getElementById('feedbackOverlay').classList.remove('show');
       
       if (currentStage === 2) {
-        // Reset selections for Fill in the Blank
         selectedOption = null;
         document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
         const blankSpot = document.querySelector('.blank-spot');
@@ -465,7 +481,6 @@
         document.getElementById('actionBtn').disabled = true;
 
       } else if (currentStage === 3) {
-        // Reset constructed sentence for Sentence Structure
         constructedSentence = [];
         document.querySelectorAll('.word-tile').forEach(t => t.classList.remove('used'));
         renderTargetZone();
@@ -474,6 +489,7 @@
 
     function nextQuestion() {
       document.getElementById('feedbackOverlay').classList.remove('show');
+      wrongAttempts = 0;
       currentStep++;
 
       if (currentStage === 2) {
@@ -507,6 +523,7 @@
       fillIndex = 0;
       sentenceIndex = 0;
       currentStep = 1;
+      wrongAttempts = 0;
 
       document.getElementById('stageBody').style.display = 'flex';
       document.getElementById('resultScreen').style.display = 'none';
