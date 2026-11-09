@@ -16,10 +16,22 @@
     /* Main Container */
     main { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; flex: 1; width: 100%; }
 
-    /* Navigation Tabs */
-    .tabs-nav { display: flex; gap: 0.5rem; background: #e0f2fe; padding: 0.35rem; border-radius: 12px; margin-bottom: 2rem; }
+    /* Form Navigation Tabs */
+    .tabs-nav { display: flex; gap: 0.5rem; background: #e0f2fe; padding: 0.35rem; border-radius: 12px; margin-bottom: 1.5rem; }
     .tab-btn { flex: 1; padding: 0.75rem 1rem; border: none; background: transparent; color: #0369a1; font-weight: 700; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
     .tab-btn.active { background: #ffffff; color: #0284c7; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15); }
+
+    /* Form 5 Units Sub-nav */
+    .f5-units-nav { display: none; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .unit-btn { background: #ffffff; border: 2px solid #bae6fd; color: #0369a1; padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
+    .unit-btn:hover { border-color: #38bdf8; background: #f0f9ff; }
+    .unit-btn.active { background: #0284c7; color: #ffffff; border-color: #0284c7; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25); }
+
+    /* Subtopics Filter Navigation */
+    .subtopics-nav { display: none; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; background: #ffffff; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #e0f2fe; }
+    .subtopic-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 0.4rem 0.85rem; border-radius: 999px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .subtopic-btn:hover { border-color: #38bdf8; color: #0284c7; }
+    .subtopic-btn.active { background: #e0f2fe; color: #0284c7; border-color: #0284c7; font-weight: 700; }
 
     /* Game Cards Grid */
     .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
@@ -68,6 +80,16 @@
       <button class="tab-btn" onclick="switchForm('form6')">Form 6</button>
     </div>
 
+    <!-- Form 5 Main Units Sub-navigation -->
+    <div id="f5UnitsNav" class="f5-units-nav">
+      <button class="unit-btn active" onclick="switchF5Unit('Mechanics')">⚙️ Mechanics</button>
+      <button class="unit-btn" onclick="switchF5Unit('Wave')">🌊 Wave</button>
+      <button class="unit-btn" onclick="switchF5Unit('Electromagnetic')">🧲 Electromagnetic</button>
+    </div>
+
+    <!-- Subtopics Navigation Filter -->
+    <div id="subtopicsNav" class="subtopics-nav"></div>
+
     <!-- Game Grid Container -->
     <div id="gamesGrid" class="games-grid"></div>
   </main>
@@ -88,6 +110,31 @@
   </footer>
 
   <script>
+    // Form 5 Units & Subtopics Registry
+    const FORM5_TOPICS = {
+      "Mechanics": [
+        "Projectile motion",
+        "Circular motion",
+        "Gravitation"
+      ],
+      "Wave": [
+        "Nature of Wave",
+        "Wave Phenomenon",
+        "Wave Nature of Light",
+        "Sound"
+      ],
+      "Electromagnetic": [
+        "Electrostatics",
+        "Current, Voltage & Resistance",
+        "Circuits in Practice",
+        "Domestic Electricity",
+        "Magnetic Field",
+        "Force due to Magnetic field",
+        "Electromagnetic Induction",
+        "Transformers and Transmission of Electricity"
+      ]
+    };
+
     // ==========================================
     // ⚙️ ADD YOUR GAMES HERE IN THE BACKGROUND CODE
     // ==========================================
@@ -101,37 +148,108 @@
         filePath: "games/form3/light/reflection_test.html"
       }
       /* 
-        To add another game in the background, add a comma above and paste:
+        Format for adding Form 5 games in the future:
         ,{
-          id: "f3_optics_2",
-          form: "form3",
-          title: "Refraction & Lenses Lab",
-          subtitle: "Snell's Law & Refractive Index",
-          badge: "Form 3 • Optics",
-          filePath: "games/form3/light/refraction.html"
+          id: "f5_projectile_1",
+          form: "form5",
+          unit: "Mechanics",
+          topic: "Projectile motion",
+          title: "Projectile Launcher Challenge",
+          subtitle: "Calculate angles and maximum range",
+          badge: "Form 5 • Mechanics",
+          filePath: "games/form5/mechanics/projectile.html"
         }
       */
     ];
 
     let currentForm = 'form3';
+    let currentF5Unit = 'Mechanics';
+    let currentSubtopic = 'All';
 
     function switchForm(formKey) {
       currentForm = formKey;
+      currentSubtopic = 'All';
+
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('onclick').includes(formKey));
+      });
+
+      const f5UnitsNav = document.getElementById('f5UnitsNav');
+      const subtopicsNav = document.getElementById('subtopicsNav');
+
+      if (formKey === 'form5') {
+        f5UnitsNav.style.display = 'flex';
+        renderSubtopicButtons();
+      } else {
+        f5UnitsNav.style.display = 'none';
+        subtopicsNav.style.display = 'none';
+      }
+
+      renderGames();
+    }
+
+    function switchF5Unit(unitName) {
+      currentF5Unit = unitName;
+      currentSubtopic = 'All';
+
+      document.querySelectorAll('.unit-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(unitName));
+      });
+
+      renderSubtopicButtons();
+      renderGames();
+    }
+
+    function switchSubtopic(subtopicName) {
+      currentSubtopic = subtopicName;
+      document.querySelectorAll('.subtopic-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim() === subtopicName);
       });
       renderGames();
     }
 
+    function renderSubtopicButtons() {
+      const subtopicsNav = document.getElementById('subtopicsNav');
+      if (currentForm !== 'form5') {
+        subtopicsNav.style.display = 'none';
+        return;
+      }
+
+      const topics = FORM5_TOPICS[currentF5Unit] || [];
+      subtopicsNav.style.display = 'flex';
+      
+      let html = `<button class="subtopic-btn ${currentSubtopic === 'All' ? 'active' : ''}" onclick="switchSubtopic('All')">All Topics</button>`;
+      
+      topics.forEach(t => {
+        const isActive = currentSubtopic === t ? 'active' : '';
+        html += `<button class="subtopic-btn ${isActive}" onclick="switchSubtopic('${t}')">${t}</button>`;
+      });
+
+      subtopicsNav.innerHTML = html;
+    }
+
     function renderGames() {
       const grid = document.getElementById('gamesGrid');
-      const activeGames = GAMES_LIST.filter(g => g.form === currentForm);
+      
+      let activeGames = GAMES_LIST.filter(g => g.form === currentForm);
+
+      if (currentForm === 'form5') {
+        activeGames = activeGames.filter(g => g.unit === currentF5Unit);
+        if (currentSubtopic !== 'All') {
+          activeGames = activeGames.filter(g => g.topic === currentSubtopic);
+        }
+      }
 
       if (activeGames.length === 0) {
+        let label = currentForm.toUpperCase();
+        if (currentForm === 'form5') {
+          label = `Form 5 - ${currentF5Unit}${currentSubtopic !== 'All' ? ' (' + currentSubtopic + ')' : ''}`;
+        }
+        
         grid.innerHTML = `
           <div class="empty-state">
             <h3>No Games Available Yet</h3>
-            <p>Games for ${currentForm.toUpperCase()} are currently under development by FU Tsz Kit @STFACYTSS.</p>
+            <p>Games for <strong>${label}</strong> are currently under development by FU Tsz Kit @STFACYTSS.</p>
           </div>
         `;
         return;
@@ -140,7 +258,7 @@
       grid.innerHTML = activeGames.map(game => `
         <div class="game-card">
           <div>
-            <span class="card-badge">${game.badge}</span>
+            <span class="card-badge">${game.badge || game.topic || game.unit}</span>
             <div class="card-title">${game.title}</div>
             <div class="card-desc">${game.subtitle}</div>
           </div>
