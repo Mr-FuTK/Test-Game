@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HW_3B_501 | FU Tsz Kit @STFACYTSS</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background-color: #f0f9ff; color: #1e293b; display: flex; flex-direction: column; min-height: 100vh; padding: 15px; }
+
+    .app-container { max-width: 520px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 20px; border: 2px solid #e0f2fe; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.08); display: flex; flex-direction: column; flex: 1; overflow: hidden; position: relative; }
+    
+    /* Header & Progress Bar */
+    .header { padding: 16px 20px 10px; border-bottom: 1px solid #f1f5f9; }
+    .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .stage-badge { background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
+    .author-tag { font-size: 0.75rem; color: #64748b; font-weight: 600; }
+    .progress-track { width: 100%; height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #0284c7; width: 10%; transition: width 0.4s ease; border-radius: 999px; }
+    
+    /* Main Stage Body */
+    .stage-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .stage-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .stage-subtitle { font-size: 0.9rem; color: #64748b; margin-bottom: 20px; }
+    
+    /* STAGE 1: MATCHING */
+    .matching-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+    .match-card { background: #ffffff; border: 2px solid #e2e8f0; border-bottom-width: 4px; border-radius: 14px; padding: 14px 10px; font-size: 0.95rem; font-weight: 700; color: #334155; text-align: center; cursor: pointer; user-select: none; transition: all 0.15s ease; min-height: 56px; display: flex; align-items: center; justify-content: center; }
+    .match-card:active { transform: translateY(2px); border-bottom-width: 2px; }
+    .match-card.selected { border-color: #38bdf8; background-color: #f0f9ff; color: #0284c7; }
+    .match-card.matched { border-color: #86efac; background-color: #f0fdf4; color: #16a34a; opacity: 0.4; cursor: default; pointer-events: none; border-bottom-width: 2px; }
+    .match-card.wrong { border-color: #fca5a5; background-color: #fef2f2; color: #dc2626; animation: shake 0.3s; }
+    
+    /* STAGE 2: FILL IN THE BLANK */
+    .prompt-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px; font-size: 1.1rem; font-weight: 600; line-height: 1.5; color: #1e293b; }
+    .blank-spot { display: inline-block; border-bottom: 3px solid #0284c7; min-width: 90px; color: #0284c7; text-align: center; font-weight: 800; padding: 0 6px; }
+    .options-list { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn { background: #ffffff; border: 2px solid #e2e8f0; border-bottom-width: 4px; border-radius: 12px; padding: 14px 18px; font-size: 1rem; font-weight: 700; color: #334155; text-align: left; cursor: pointer; transition: all 0.15s; }
+    .option-btn:hover { border-color: #93c5fd; background: #f0f9ff; }
+    .option-btn.selected { border-color: #38bdf8; background: #e0f2fe; color: #0284c7; }
+    
+    /* STAGE 3: SENTENCE STRUCTURE */
+    .target-dropzone { min-height: 80px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 14px; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; margin-bottom: 20px; }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: auto; padding-top: 10px; }
+    .word-tile { background: #ffffff; border: 2px solid #cbd5e1; border-bottom-width: 4px; border-radius: 10px; padding: 8px 14px; font-weight: 700; font-size: 0.95rem; color: #334155; cursor: pointer; user-select: none; transition: all 0.15s; }
+    .word-tile:active { transform: translateY(2px); border-bottom-width: 2px; }
+    .word-tile.used { opacity: 0.2; pointer-events: none; background: #e2e8f0; border-color: #cbd5e1; border-bottom-width: 2px; }
+    
+    /* Bottom Action Bar */
+    .bottom-bar { padding: 16px 20px; background: #ffffff; border-top: 2px solid #e0f2fe; display: flex; justify-content: space-between; align-items: center; }
+    .btn-action { background: #0284c7; color: white; border: none; border-radius: 12px; padding: 14px 28px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 0 #0369a1; transition: all 0.15s; width: 100%; text-align: center; }
+    .btn-action:active { transform: translateY(3px); box-shadow: 0 1px 0 #0369a1; }
+    .btn-action:disabled { background: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+    
+    /* Bottom Feedback Drawer */
+    .feedback-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; display: none; flex-direction: column; gap: 12px; transform: translateY(100%); transition: transform 0.3s ease; z-index: 10; }
+    .feedback-overlay.show { transform: translateY(0); display: flex; }
+    .feedback-overlay.correct { background-color: #dcfce7; border-top: 3px solid #22c55e; color: #15803d; }
+    .feedback-overlay.wrong { background-color: #fee2e2; border-top: 3px solid #ef4444; color: #b91c1c; }
+    .feedback-title { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .feedback-desc { font-size: 0.95rem; font-weight: 600; line-height: 1.4; }
+    
+    /* Final Result Screen */
+    .result-screen { text-align: center; display: none; flex-direction: column; justify-content: center; align-items: center; flex: 1; padding: 30px 20px; }
+    .result-icon { font-size: 4rem; margin-bottom: 10px; }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="header">
+      <div class="header-info">
+        <span class="stage-badge" id="stageBadge">Stage 1: Vocabulary Match</span>
+        <span class="author-tag">FU Tsz Kit @STFACYTSS</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="stage-body" id="stageBody"></div>
+
+    <div class="result-screen" id="resultScreen">
+      <div class="result-icon">🎉</div>
+      <h2 style="color:#0284c7; font-size: 1.8rem; margin-bottom: 10px;">Stage Complete!</h2>
+      <p style="color: #64748b; font-weight: 600; margin-bottom: 30px;">You mastered HW_3B_501 vocabulary and sentence structure!</p>
+      <button class="btn-action" onclick="restartGame()">Play Again 🔄</button>
+    </div>
+
+    <div class="bottom-bar" id="bottomBar">
+      <button class="btn-action" id="actionBtn" onclick="handleActionButton()" disabled>Check Answer</button>
+    </div>
+
+    <div class="feedback-overlay" id="feedbackOverlay">
+      <div class="feedback-title" id="feedbackTitle"></div>
+      <div class="feedback-desc" id="feedbackDesc"></div>
+      <button class="btn-action" id="feedbackBtn" onclick="handleFeedbackAction()">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    // DATA REGISTRY
+    const matchingData = [
+      [
+        { en: "ripple tank", cn: "水波槽" },
+        { en: "crest", cn: "波峰" },
+        { en: "trough", cn: "波谷" },
+        { en: "equilibrium position", cn: "平衡位置" },
+        { en: "wavefronts", cn: "波陣面" }
+      ],
+      [
+        { en: "phenomenon", cn: "現象" },
+        { en: "refraction", cn: "折射" },
+        { en: "propagate", cn: "傳播" },
+        { en: "angle of incidence", cn: "入射角" },
+        { en: "dipper", cn: "振子" }
+      ],
+      [
+        { en: "vibrating", cn: "振動" },
+        { en: "instant", cn: "瞬間" },
+        { en: "constant", cn: "恆常的" },
+        { en: "evenly spaced", cn: "等距排列的" },
+        { en: "boundary", cn: "邊界" }
+      ],
+      [
+        { en: "shallow", cn: "淺的" },
+        { en: "barrier", cn: "障礙物" },
+        { en: "respectively", cn: "分別" }
+      ]
+    ];
+
+    const fillBlankData = [];
+
+    const sentenceData = [
+      {
+        english: "If the vibrating frequency of the source is doubled",
+        correctCn: ["若波源的", "振動頻率", "加倍，"],
+        wordBank: ["若波源的", "振動頻率", "加倍，", "波速", "減半"]
+      },
+      {
+        english: "The wave pattern projected from a ripple tank at an instant is shown below",
+        correctCn: ["水波槽在", "某一瞬間", "投影出的波紋圖像", "如下所示。"],
+        wordBank: ["水波槽在", "某一瞬間", "投影出的波紋圖像", "如下所示。", "波長", "反射角"]
+      },
+      {
+        english: "The green lines represent wave crests. Each wave has a constant wavelength.",
+        correctCn: ["綠色直線", "代表波峰，", "每個波都具有", "恆常的波長。"],
+        wordBank: ["綠色直線", "代表波峰，", "每個波都具有", "恆常的波長。", "波谷", "變化的"]
+      },
+      {
+        english: "A straight water wave is travelling to the left in a ripple tank.",
+        correctCn: ["一個平面水波", "正在水波槽中", "向左傳播。"],
+        wordBank: ["一個平面水波", "正在水波槽中", "向左傳播。", "向右", "圓形波"]
+      },
+      {
+        english: "A ball is floating at point A, which is in the middle of two green lines at the instant shown.",
+        correctCn: ["在圖示的瞬間，", "一個小球浮在", "兩條綠線中間的", "A 點。"],
+        wordBank: ["在圖示的瞬間，", "一個小球浮在", "兩條綠線中間的", "A 點。", "波峰上", "沉入"]
+      },
+      {
+        english: "A straight wave propagates towards a straight barrier",
+        correctCn: ["平面波", "向直線障礙物", "傳播。"],
+        wordBank: ["平面波", "向直線障礙物", "傳播。", "折射", "波陣面"]
+      },
+      {
+        english: "A ripple tank has two regions, P and Q, which are different in depth.",
+        correctCn: ["水波槽有", "P 和 Q 兩個", "深度不同的區域。"],
+        wordBank: ["水波槽有", "P 和 Q 兩個", "深度不同的區域。", "頻率相同", "波速相等"]
+      },
+      {
+        english: "Figure f shows a water wave travelling from a deep region to a shallow region.",
+        correctCn: ["圖 f 顯示水波", "從深水區", "傳播到淺水區。"],
+        wordBank: ["圖 f 顯示水波", "從深水區", "傳播到淺水區。", "反射角", "障礙物"]
+      }
+    ];
+
+    // State Variables
+    let currentStage = 1;
+    let matchPageIndex = 0;
+    let fillIndex = 0;
+    let sentenceIndex = 0;
+
+    let selectedCard1 = null;
+    let selectedCard2 = null;
+    let matchedPairsCount = 0;
+
+    let selectedOption = null;
+    let constructedSentence = [];
+    let lastAttemptCorrect = false;
+    let wrongAttempts = 0;
+
+    const totalSteps = matchingData.length + fillBlankData.length + sentenceData.length;
+    let currentStep = 1;
+
+    function updateProgress() {
+      const pct = Math.round((currentStep / totalSteps) * 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+    }
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function render() {
+      updateProgress();
+      document.getElementById('feedbackOverlay').classList.remove('show', 'correct', 'wrong');
+      
+      if (currentStage === 1) {
+        document.getElementById('stageBadge').textContent = `Stage 1: Matching (${matchPageIndex + 1}/${matchingData.length})`;
+        renderMatchingPage();
+      } else if (currentStage === 2) {
+        if (fillBlankData.length === 0) {
+          currentStage = 3;
+          render();
+          return;
+        }
+        document.getElementById('stageBadge').textContent = `Stage 2: Fill in Blank (${fillIndex + 1}/${fillBlankData.length})`;
+        renderFillBlank();
+      } else if (currentStage === 3) {
+        const stageName = fillBlankData.length > 0 ? "Stage 3" : "Stage 2";
+        document.getElementById('stageBadge').textContent = `${stageName}: Sentence Structure (${sentenceIndex + 1}/${sentenceData.length})`;
+        renderSentenceStructure();
+      }
+    }
+
+    // STAGE 1: MATCHING
+    function renderMatchingPage() {
+      const pairs = matchingData[matchPageIndex];
+      matchedPairsCount = 0;
+      selectedCard1 = null;
+      selectedCard2 = null;
+
+      let leftList = pairs.map((p, i) => ({ text: p.en, id: i, type: 'en' }));
+      let rightList = pairs.map((p, i) => ({ text: p.cn, id: i, type: 'cn' }));
+
+      leftList = shuffle(leftList);
+      rightList = shuffle(rightList);
+
+      let html = `
+        <div class="stage-title">選擇配對 (Matching)</div>
+        <div class="stage-subtitle">Tap matching English and Chinese pairs</div>
+        <div class="matching-grid" id="matchGrid"></div>
+      `;
+      document.getElementById('stageBody').innerHTML = html;
+
+      const grid = document.getElementById('matchGrid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < Math.max(leftList.length, rightList.length); i++) {
+        if (leftList[i]) grid.appendChild(createMatchCard(leftList[i]));
+        if (rightList[i]) grid.appendChild(createMatchCard(rightList[i]));
+      }
+
+      document.getElementById('bottomBar').style.display = 'none';
+    }
+
+    function createMatchCard(item) {
+      const card = document.createElement('div');
+      card.className = 'match-card';
+      card.textContent = item.text;
+      card.dataset.id = item.id;
+      card.dataset.type = item.type;
+
+      card.onclick = () => {
+        if (card.classList.contains('matched') || card === selectedCard1) return;
+
+        card.classList.add('selected');
+
+        if (!selectedCard1) {
+          selectedCard1 = card;
+        } else {
+          selectedCard2 = card;
+          if (selectedCard1.dataset.id === selectedCard2.dataset.id && selectedCard1.dataset.type !== selectedCard2.dataset.type) {
+            selectedCard1.classList.remove('selected');
+            selectedCard2.classList.remove('selected');
+            selectedCard1.classList.add('matched');
+            selectedCard2.classList.add('matched');
+            selectedCard1 = null;
+            selectedCard2 = null;
+            matchedPairsCount++;
+
+            if (matchedPairsCount === matchingData[matchPageIndex].length) {
+              setTimeout(() => {
+                currentStep++;
+                matchPageIndex++;
+                if (matchPageIndex < matchingData.length) {
+                  render();
+                } else {
+                  currentStage = fillBlankData.length > 0 ? 2 : 3;
+                  wrongAttempts = 0;
+                  render();
+                }
+              }, 400);
+            }
+          } else {
+            selectedCard1.classList.add('wrong');
+            selectedCard2.classList.add('wrong');
+            const c1 = selectedCard1;
+            const c2 = selectedCard2;
+            selectedCard1 = null;
+            selectedCard2 = null;
+            setTimeout(() => {
+              c1.classList.remove('selected', 'wrong');
+              c2.classList.remove('selected', 'wrong');
+            }, 500);
+          }
+        }
+      };
+      return card;
+    }
+
+    // STAGE 2: FILL IN THE BLANK
+    function renderFillBlank() {
+      document.getElementById('bottomBar').style.display = 'flex';
+      const actionBtn = document.getElementById('actionBtn');
+      actionBtn.disabled = true;
+      selectedOption = null;
+
+      const q = fillBlankData[fillIndex];
+
+      let optionsHtml = shuffle([...q.options]).map(opt => `
+        <button class="option-btn" onclick="selectFillOption(this, '${opt}')">${opt}</button>
+      `).join('');
+
+      let html = `
+        <div class="stage-title">填空 (Fill in the blank)</div>
+        <div class="stage-subtitle">Select the correct word to complete the sentence</div>
+        <div class="prompt-box" id="blankSentence">${q.sentence}</div>
+        <div class="options-list">${optionsHtml}</div>
+      `;
+
+      document.getElementById('stageBody').innerHTML = html;
+    }
+
+    function selectFillOption(btn, value) {
+      document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedOption = value;
+      
+      const blankSpot = document.querySelector('.blank-spot');
+      if (blankSpot) blankSpot.textContent = value;
+      
+      document.getElementById('actionBtn').disabled = false;
+    }
+
+    // STAGE 3: SENTENCE STRUCTURE
+    function renderSentenceStructure() {
+      document.getElementById('bottomBar').style.display = 'flex';
+      const actionBtn = document.getElementById('actionBtn');
+      actionBtn.disabled = true;
+      constructedSentence = [];
+
+      const s = sentenceData[sentenceIndex];
+      const shuffledWords = shuffle([...s.wordBank]);
+
+      let html = `
+        <div class="stage-title">翻譯這句話 (Translate Sentence)</div>
+        <div class="stage-subtitle">Tap Chinese words to build the translation</div>
+        <div class="prompt-box" style="font-size: 1rem; color: #0284c7; background: #e0f2fe;">
+          🗣️ ${s.english}
+        </div>
+        <div class="target-dropzone" id="targetDropzone"></div>
+        <div class="word-bank" id="wordBank"></div>
+      `;
+
+      document.getElementById('stageBody').innerHTML = html;
+
+      const bank = document.getElementById('wordBank');
+      shuffledWords.forEach((word, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'word-tile';
+        tile.textContent = word;
+        tile.dataset.word = word;
+        tile.dataset.index = idx;
+        tile.onclick = () => addWordToTarget(tile);
+        bank.appendChild(tile);
+      });
+    }
+
+    function addWordToTarget(tile) {
+      if (tile.classList.contains('used')) return;
+
+      tile.classList.add('used');
+      constructedSentence.push({ word: tile.dataset.word, originTile: tile });
+
+      renderTargetZone();
+    }
+
+    function removeWordFromTarget(index) {
+      const removed = constructedSentence.splice(index, 1)[0];
+      removed.originTile.classList.remove('used');
+      renderTargetZone();
+    }
+
+    function renderTargetZone() {
+      const dropzone = document.getElementById('targetDropzone');
+      dropzone.innerHTML = '';
+      constructedSentence.forEach((item, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'word-tile';
+        tile.textContent = item.word;
+        tile.onclick = () => removeWordFromTarget(idx);
+        dropzone.appendChild(tile);
+      });
+
+      document.getElementById('actionBtn').disabled = constructedSentence.length === 0;
+    }
+
+    // CHECK ANSWER ACTION
+    function handleActionButton() {
+      const overlay = document.getElementById('feedbackOverlay');
+      const title = document.getElementById('feedbackTitle');
+      const desc = document.getElementById('feedbackDesc');
+      const feedbackBtn = document.getElementById('feedbackBtn');
+
+      if (currentStage === 2) {
+        const q = fillBlankData[fillIndex];
+        lastAttemptCorrect = (selectedOption === q.target);
+
+        overlay.className = `feedback-overlay ${lastAttemptCorrect ? 'correct' : 'wrong'} show`;
+        
+        if (lastAttemptCorrect) {
+          wrongAttempts = 0;
+          title.innerHTML = '🎉 答對了！(Correct!)';
+          desc.textContent = 'Great job! You picked the right physics term.';
+          feedbackBtn.textContent = 'Continue';
+          feedbackBtn.style.backgroundColor = '#22c55e';
+        } else {
+          wrongAttempts++;
+          if (wrongAttempts >= 3) {
+            title.innerHTML = '💡 提示 (Hint after 3 attempts)';
+            desc.innerHTML = `正確答案是：<strong>${q.target}</strong>`;
+          } else {
+            title.innerHTML = `❌ 答案不正確 (嘗試 ${wrongAttempts}/3)`;
+            desc.textContent = 'Re-read the sentence carefully and try selecting another word.';
+          }
+          feedbackBtn.textContent = 'Try Again 🔄';
+          feedbackBtn.style.backgroundColor = '#ef4444';
+        }
+
+      } else if (currentStage === 3) {
+        const s = sentenceData[sentenceIndex];
+        const userSequence = constructedSentence.map(i => i.word).join('');
+        const targetSequence = s.correctCn.join('');
+
+        lastAttemptCorrect = (userSequence === targetSequence);
+
+        overlay.className = `feedback-overlay ${lastAttemptCorrect ? 'correct' : 'wrong'} show`;
+        
+        if (lastAttemptCorrect) {
+          wrongAttempts = 0;
+          title.innerHTML = '🎉 不錯喔！(Spot on!)';
+          desc.textContent = 'Excellent Chinese sentence construction!';
+          feedbackBtn.textContent = 'Continue';
+          feedbackBtn.style.backgroundColor = '#22c55e';
+        } else {
+          wrongAttempts++;
+          if (wrongAttempts >= 3) {
+            title.innerHTML = '💡 提示 (Hint after 3 attempts)';
+            desc.innerHTML = `正確順序為：<br><strong>${s.correctCn.join(' ')}</strong>`;
+          } else {
+            title.innerHTML = `❌ 順序不正確 (嘗試 ${wrongAttempts}/3)`;
+            desc.textContent = 'Check the word order carefully and try arranging them again.';
+          }
+          feedbackBtn.textContent = 'Try Again 🔄';
+          feedbackBtn.style.backgroundColor = '#ef4444';
+        }
+      }
+    }
+
+    // HANDLE FEEDBACK BUTTON CLICK
+    function handleFeedbackAction() {
+      if (lastAttemptCorrect) {
+        nextQuestion();
+      } else {
+        retryQuestion();
+      }
+    }
+
+    function retryQuestion() {
+      document.getElementById('feedbackOverlay').classList.remove('show');
+      
+      if (currentStage === 2) {
+        selectedOption = null;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        const blankSpot = document.querySelector('.blank-spot');
+        if (blankSpot) blankSpot.textContent = '?';
+        document.getElementById('actionBtn').disabled = true;
+
+      } else if (currentStage === 3) {
+        constructedSentence = [];
+        document.querySelectorAll('.word-tile').forEach(t => t.classList.remove('used'));
+        renderTargetZone();
+      }
+    }
+
+    function nextQuestion() {
+      document.getElementById('feedbackOverlay').classList.remove('show');
+      wrongAttempts = 0;
+      currentStep++;
+
+      if (currentStage === 2) {
+        fillIndex++;
+        if (fillIndex < fillBlankData.length) {
+          render();
+        } else {
+          currentStage = 3;
+          render();
+        }
+      } else if (currentStage === 3) {
+        sentenceIndex++;
+        if (sentenceIndex < sentenceData.length) {
+          render();
+        } else {
+          showFinalResults();
+        }
+      }
+    }
+
+    function showFinalResults() {
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('stageBody').style.display = 'none';
+      document.getElementById('bottomBar').style.display = 'none';
+      document.getElementById('resultScreen').style.display = 'flex';
+    }
+
+    function restartGame() {
+      currentStage = 1;
+      matchPageIndex = 0;
+      fillIndex = 0;
+      sentenceIndex = 0;
+      currentStep = 1;
+      wrongAttempts = 0;
+
+      document.getElementById('stageBody').style.display = 'flex';
+      document.getElementById('resultScreen').style.display = 'none';
+      render();
+    }
+
+    // Start Game
+    render();
+  </script>
+
+</body>
+</html>
